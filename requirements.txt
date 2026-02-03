@@ -1,0 +1,31 @@
+# Core
+anthropic>=0.39.0        # Claude Vision API
+openai>=1.50.0           # Whisper API (optional, for cloud STT)
+openai-whisper>=20231117 # Local Whisper model
+
+# Audio
+pyaudio>=0.2.14          # Mic capture
+webrtcvad>=2.0.10        # Voice activity detection
+pvporcupine>=3.0.0       # Wake word detection
+
+# Camera
+picamera2>=0.3.17        # Pi Camera Module 3 control
+Pillow>=10.0.0           # Image processing
+
+# GPS
+pyserial>=3.5            # Serial comms with NEO-6M
+pynmea2>=1.19.0          # NMEA sentence parsing
+
+# TTS
+piper-tts>=1.2.0         # Local text-to-speech
+
+# Database
+# sqlite3 is stdlib — no install needed
+
+# Server (optional)
+fastapi>=0.109.0
+uvicorn>=0.27.0
+jinja2>=3.1.0
+
+# Utilities
+python-dotenv>=1.0.0

@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Airpiece — Hands-free AI for demanding jobs</title>
+    <meta name="description" content="A wearable AI assistant for demanding jobs. See, hear, and know more on site — entirely by voice.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg: #e8e4df;
+            --bg-warm: #ddd8d1;
+            --surface: #f2efeb;
+            --surface-dark: #d5d0c9;
+            --border: #c8c3bb;
+            --text: #1a1a1a;
+            --text-secondary: #5c5850;
+            --text-tertiary: #8a8478;
+            --radius: 14px;
+        }
+
+        body {
+            font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            background-image:
+                radial-gradient(ellipse 120% 60% at 50% 0%, #f5f2ee 0%, transparent 70%),
+                radial-gradient(ellipse 80% 40% at 50% 100%, #d9d4cc 0%, transparent 60%);
+            color: var(--text);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+        }
+
+        /* --- Nav --- */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 100;
+            padding: 0 2rem;
+            height: 52px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(232,228,223,0.7);
+            backdrop-filter: saturate(180%) blur(20px);
+            -webkit-backdrop-filter: saturate(180%) blur(20px);
+        }
+        .nav-left { width: 120px; }
+        .logo {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 600;
+            letter-spacing: -0.025em;
+            color: var(--text);
+            text-decoration: none;
+        }
+        nav a.cta-nav {
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            text-decoration: none;
+            width: 120px;
+            text-align: right;
+            transition: color 0.2s;
+        }
+        nav a.cta-nav:hover { color: var(--text); }
+
+        /* --- Hero --- */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 8rem 2rem 6rem;
+            position: relative;
+        }
+
+        /* 3D block letters */
+        .hero-brand {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(5rem, 15vw, 12rem);
+            font-weight: 700;
+            letter-spacing: -0.05em;
+            line-height: 0.85;
+            color: var(--text);
+            margin-bottom: 2.5rem;
+            position: relative;
+            display: flex;
+            align-items: baseline;
+        }
+        .hero-brand span {
+            display: inline-block;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .hero-brand .l1 { transform: rotate(-2deg) translateY(2px); }
+        .hero-brand .l2 { transform: rotate(0.5deg) translateY(-1px); }
+        .hero-brand .l3 { transform: rotate(-0.8deg) translateY(3px); }
+        .hero-brand .l4 { transform: rotate(1.5deg) translateY(-2px); }
+        .hero-brand .l5 { transform: rotate(-1deg) translateY(1px); }
+        .hero-brand .l6 { transform: rotate(0.3deg) translateY(-3px); }
+        .hero-brand .l7 { transform: rotate(-1.2deg) translateY(2px); }
+        .hero-brand .l8 { transform: rotate(0.8deg) translateY(-1px); }
+
+        /* Spotlight glow behind the text */
+        .hero-brand::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 110%;
+            height: 200%;
+            background: radial-gradient(ellipse, rgba(255,255,255,0.5) 0%, transparent 65%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .badge {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--text-tertiary);
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(1.5rem, 3.5vw, 2.25rem);
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+            max-width: 600px;
+            margin-bottom: 1.5rem;
+            color: var(--text);
+        }
+        h1 .muted { color: var(--text-secondary); }
+
+        .hero-sub {
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+            max-width: 460px;
+            margin-bottom: 2.5rem;
+            line-height: 1.6;
+            font-weight: 400;
+        }
+        .cta-group {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+        }
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            font-size: 0.9rem;
+            font-weight: 600;
+            font-family: inherit;
+            color: var(--bg);
+            background: var(--text);
+            padding: 0.7rem 1.75rem;
+            border-radius: 980px;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.15s;
+        }
+        .btn-primary:hover { background: #333; transform: translateY(-1px); }
+        .btn-secondary {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .btn-secondary:hover { color: var(--text); }
+
+        /* --- Sections --- */
+        section {
+            padding: 6rem 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .section-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-tertiary);
+            margin-bottom: 0.75rem;
+        }
+        h2 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(2rem, 4.5vw, 3rem);
+            font-weight: 700;
+            letter-spacing: -0.035em;
+            line-height: 1.05;
+            margin-bottom: 0.75rem;
+        }
+        .section-desc {
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+            max-width: 500px;
+            margin-bottom: 3.5rem;
+            line-height: 1.6;
+        }
+
+        /* --- Divider --- */
+        .divider {
+            max-width: 1000px;
+            margin: 0 auto;
+            height: 1px;
+            background: var(--border);
+        }
+
+        /* Flow */
+        .flow {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1px;
+            background: var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+        .flow-step {
+            background: var(--surface);
+            padding: 2.25rem 1.5rem;
+        }
+        .flow-step .num {
+            font-size: 0.65rem;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            margin-bottom: 1.25rem;
+            letter-spacing: 0.05em;
+        }
+        .flow-step h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.01em;
+        }
+        .flow-step p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.55;
+        }
+
+        /* --- Use cases --- */
+        .use-cases {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1px;
+            background: var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+        .use-case {
+            background: var(--surface);
+            padding: 2.25rem 1.75rem;
+        }
+        .use-case h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        .use-case p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.55;
+        }
+
+        /* --- Commands --- */
+        .commands {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1px;
+            background: var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+        .command {
+            background: var(--surface);
+            padding: 1.75rem;
+        }
+        .command .voice {
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
+        }
+        .command .response {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.55;
+        }
+
+        /* --- Waitlist --- */
+        .waitlist {
+            text-align: center;
+            padding: 7rem 2rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .waitlist h2 { margin-bottom: 0.75rem; }
+        .waitlist .section-desc {
+            margin: 0 auto 2.5rem;
+        }
+        .waitlist-form {
+            display: flex;
+            gap: 0.5rem;
+            max-width: 420px;
+            margin: 0 auto;
+        }
+        .waitlist-form input[type="email"] {
+            flex: 1;
+            padding: 0.7rem 1rem;
+            font-size: 0.9rem;
+            font-family: inherit;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 980px;
+            color: var(--text);
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .waitlist-form input[type="email"]:focus {
+            border-color: var(--text-tertiary);
+        }
+        .waitlist-form input[type="email"]::placeholder {
+            color: var(--text-tertiary);
+        }
+        .waitlist-form button { font-family: inherit; }
+        .form-note {
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+            margin-top: 1rem;
+        }
+        .form-success {
+            display: none;
+            font-size: 1rem;
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        /* --- Footer --- */
+        footer {
+            padding: 2rem 2rem 3rem;
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+        }
+
+        /* --- Responsive --- */
+        @media (max-width: 768px) {
+            .flow { grid-template-columns: 1fr 1fr; }
+            .use-cases { grid-template-columns: 1fr; }
+            .commands { grid-template-columns: 1fr; }
+            .hero-brand { font-size: clamp(3.5rem, 12vw, 8rem); }
+        }
+        @media (max-width: 480px) {
+            nav { padding: 0 1.25rem; }
+            .hero { padding: 7rem 1.25rem 4rem; }
+            section { padding: 4rem 1.25rem; }
+            .flow { grid-template-columns: 1fr; }
+            .waitlist { padding: 5rem 1.25rem; }
+            .waitlist-form { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav>
+    <div class="nav-left"></div>
+    <a href="/" class="logo">airpiece</a>
+    <a href="#waitlist" class="cta-nav">Join waitlist</a>
+</nav>
+
+<!-- Hero -->
+<div class="hero">
+    <div class="badge">In development</div>
+    <div class="hero-brand" aria-hidden="true">
+        <span class="l1">a</span><span class="l2">i</span><span class="l3">r</span><span class="l4">p</span><span class="l5">i</span><span class="l6">e</span><span class="l7">c</span><span class="l8">e</span>
+    </div>
+    <h1><span class="muted">Hands-free AI.</span> For demanding jobs.</h1>
+    <p class="hero-sub">A wearable AI that sees what you see, hears what you say, and feeds you intelligence through an earpiece. Voice only. Eyes forward. Hands on the job.</p>
+    <div class="cta-group">
+        <a href="#waitlist" class="btn-primary">Get early access</a>
+        <a href="#how" class="btn-secondary">Learn more</a>
+    </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- How it works -->
+<section id="how">
+    <p class="section-label">How it works</p>
+    <h2>Speak. See. Know.</h2>
+    <p class="section-desc">Mounted on your hard hat or chest strap. Always watching, always listening, always ready. You talk — it acts.</p>
+    <div class="flow">
+        <div class="flow-step">
+            <div class="num">01</div>
+            <h3>You speak</h3>
+            <p>Say anything naturally. Log an observation, ask a question, request a safety check. Always listening in active mode.</p>
+        </div>
+        <div class="flow-step">
+            <div class="num">02</div>
+            <h3>It sees</h3>
+            <p>A wide-angle camera captures what's in front of you. Every voice note is paired with a geotagged image of exactly what you're looking at.</p>
+        </div>
+        <div class="flow-step">
+            <div class="num">03</div>
+            <h3>AI thinks</h3>
+            <p>Vision AI analyses the scene. Identifies species, spots hazards, reads text, understands context. Cross-references with your project history.</p>
+        </div>
+        <div class="flow-step">
+            <div class="num">04</div>
+            <h3>You hear</h3>
+            <p>Response comes back through a bone conduction earpiece in seconds. Keep working. Keep your hands on the job.</p>
+        </div>
+    </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- Use cases -->
+<section>
+    <p class="section-label">Built for</p>
+    <h2>Jobs where your hands are busy.</h2>
+    <p class="section-desc">Airpiece is built for people whose hands stay on the work.</p>
+    <div class="use-cases">
+        <div class="use-case">
+            <h3>Green roof surveys</h3>
+            <p>Walk a roof, call out observations, identify plant species, flag drainage issues. Generate a complete site report, entirely by voice.</p>
+        </div>
+        <div class="use-case">
+            <h3>Construction &amp; trades</h3>
+            <p>Log snagging issues, photograph defects hands-free, check specs against plans, document progress for clients — all by voice.</p>
+        </div>
+        <div class="use-case">
+            <h3>Field inspection</h3>
+            <p>Utilities, telecoms, agriculture. Record what you see while your hands are on the work.</p>
+        </div>
+    </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- What you say -->
+<section>
+    <p class="section-label">Talk to it</p>
+    <h2>Just say it.</h2>
+    <p class="section-desc">Pure voice. Speak like you'd speak to a colleague standing right next to you.</p>
+    <div class="commands">
+        <div class="command">
+            <div class="voice">"Log this — moss buildup on the north parapet"</div>
+            <div class="response">Logged. Image captured, GPS tagged. Moss coverage approximately 40% of visible area.</div>
+        </div>
+        <div class="command">
+            <div class="voice">"What species is that?"</div>
+            <div class="response">Sedum album — white stonecrop. Healthy, well-established. Typical for extensive green roofs in the UK.</div>
+        </div>
+        <div class="command">
+            <div class="voice">"Any safety issues here?"</div>
+            <div class="response">Unguarded edge 2 metres to your right. Membrane lifting near the drainage outlet — trip hazard.</div>
+        </div>
+        <div class="command">
+            <div class="voice">"Summarise today's survey"</div>
+            <div class="response">14 observations logged across 3 zones. 2 maintenance flags, 1 safety issue. Full report generated and saved.</div>
+        </div>
+    </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- Waitlist -->
+<div class="waitlist" id="waitlist">
+    <p class="section-label">Early access</p>
+    <h2>Be first to wear it.</h2>
+    <p class="section-desc">We're building the first prototypes. Leave your email and we'll let you know when it's ready to test.</p>
+    <form class="waitlist-form" id="waitlistForm">
+        <input type="email" name="email" placeholder="you@company.com" required>
+        <button type="submit" class="btn-primary">Join waitlist</button>
+    </form>
+    <p class="form-note">Just a heads-up when we're ready.</p>
+    <p class="form-success" id="formSuccess">You're on the list. We'll be in touch.</p>
+</div>
+
+<!-- Footer -->
+<footer>
+    <p>&copy; 2026 Airpiece &middot; Green Roof Revival Ltd</p>
+</footer>
+
+<script>
+document.getElementById('waitlistForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const email = this.querySelector('input[type="email"]').value;
+    console.log('Waitlist signup:', email);
+    this.style.display = 'none';
+    document.querySelector('.form-note').style.display = 'none';
+    document.getElementById('formSuccess').style.display = 'block';
+});
+</script>
+
+</body>
+</html>
