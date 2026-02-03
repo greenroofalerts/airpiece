@@ -5,6 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Airpiece — Hands-free AI for demanding jobs</title>
     <meta name="description" content="A wearable AI assistant for demanding jobs. See, hear, and know more on site — entirely by voice.">
+
+    <!-- OG / Social -->
+    <meta property="og:title" content="Airpiece — Hands-free AI for demanding jobs">
+    <meta property="og:description" content="A wearable AI that sees what you see, hears what you say, and feeds you intelligence through an earpiece.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://airpiece.io">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Airpiece — Hands-free AI for demanding jobs">
+    <meta name="twitter:description" content="Voice only. Eyes forward. Hands on the job.">
+
+    <!-- Favicon (inline SVG) -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#9898;</text></svg>">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
@@ -33,6 +46,32 @@
             line-height: 1.6;
             -webkit-font-smoothing: antialiased;
             min-height: 100vh;
+        }
+
+        /* --- Scroll animations --- */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                        transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .reveal-stagger > * {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+                        transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal-stagger.visible > *:nth-child(1) { transition-delay: 0s; }
+        .reveal-stagger.visible > *:nth-child(2) { transition-delay: 0.08s; }
+        .reveal-stagger.visible > *:nth-child(3) { transition-delay: 0.16s; }
+        .reveal-stagger.visible > *:nth-child(4) { transition-delay: 0.24s; }
+        .reveal-stagger.visible > * {
+            opacity: 1;
+            transform: translateY(0);
         }
 
         /* --- Nav --- */
@@ -97,16 +136,23 @@
         }
         .hero-brand span {
             display: inline-block;
-            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            opacity: 0;
+            transform: translateY(40px) rotate(0deg);
+            animation: letterDrop 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
-        .hero-brand .l1 { transform: rotate(-2deg) translateY(2px); }
-        .hero-brand .l2 { transform: rotate(0.5deg) translateY(-1px); }
-        .hero-brand .l3 { transform: rotate(-0.8deg) translateY(3px); }
-        .hero-brand .l4 { transform: rotate(1.5deg) translateY(-2px); }
-        .hero-brand .l5 { transform: rotate(-1deg) translateY(1px); }
-        .hero-brand .l6 { transform: rotate(0.3deg) translateY(-3px); }
-        .hero-brand .l7 { transform: rotate(-1.2deg) translateY(2px); }
-        .hero-brand .l8 { transform: rotate(0.8deg) translateY(-1px); }
+        .hero-brand .l1 { animation-delay: 0.1s; --rot: -2deg; --y: 2px; }
+        .hero-brand .l2 { animation-delay: 0.15s; --rot: 0.5deg; --y: -1px; }
+        .hero-brand .l3 { animation-delay: 0.2s; --rot: -0.8deg; --y: 3px; }
+        .hero-brand .l4 { animation-delay: 0.25s; --rot: 1.5deg; --y: -2px; }
+        .hero-brand .l5 { animation-delay: 0.3s; --rot: -1deg; --y: 1px; }
+        .hero-brand .l6 { animation-delay: 0.35s; --rot: 0.3deg; --y: -3px; }
+        .hero-brand .l7 { animation-delay: 0.4s; --rot: -1.2deg; --y: 2px; }
+        .hero-brand .l8 { animation-delay: 0.45s; --rot: 0.8deg; --y: -1px; }
+
+        @keyframes letterDrop {
+            0% { opacity: 0; transform: translateY(40px) rotate(0deg); }
+            100% { opacity: 1; transform: translateY(var(--y)) rotate(var(--rot)); }
+        }
 
         /* Spotlight glow behind the text */
         .hero-brand::before {
@@ -129,6 +175,21 @@
             letter-spacing: 0.12em;
             color: var(--text-tertiary);
             margin-bottom: 2rem;
+            opacity: 0;
+            animation: fadeUp 0.6s 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .hero h1, .hero-sub, .hero .cta-group {
+            opacity: 0;
+            animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .hero h1 { animation-delay: 0.55s; }
+        .hero-sub { animation-delay: 0.65s; }
+        .hero .cta-group { animation-delay: 0.75s; }
+
+        @keyframes fadeUp {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
         }
 
         h1 {
@@ -375,6 +436,7 @@
             .flow { grid-template-columns: 1fr; }
             .waitlist { padding: 5rem 1.25rem; }
             .waitlist-form { flex-direction: column; }
+            .waitlist-form .btn-primary { width: 100%; justify-content: center; }
         }
     </style>
 </head>
@@ -389,7 +451,6 @@
 
 <!-- Hero -->
 <div class="hero">
-    <div class="badge">In development</div>
     <div class="hero-brand" aria-hidden="true">
         <span class="l1">a</span><span class="l2">i</span><span class="l3">r</span><span class="l4">p</span><span class="l5">i</span><span class="l6">e</span><span class="l7">c</span><span class="l8">e</span>
     </div>
@@ -405,10 +466,12 @@
 
 <!-- How it works -->
 <section id="how">
-    <p class="section-label">How it works</p>
-    <h2>Speak. See. Know.</h2>
-    <p class="section-desc">Mounted on your hard hat or chest strap. Always watching, always listening, always ready. You talk — it acts.</p>
-    <div class="flow">
+    <div class="reveal">
+        <p class="section-label">How it works</p>
+        <h2>Speak. See. Know.</h2>
+        <p class="section-desc">Mounted on your hard hat or chest strap. Always watching, always listening, always ready. You talk — it acts.</p>
+    </div>
+    <div class="flow reveal-stagger">
         <div class="flow-step">
             <div class="num">01</div>
             <h3>You speak</h3>
@@ -436,10 +499,12 @@
 
 <!-- Use cases -->
 <section>
-    <p class="section-label">Built for</p>
-    <h2>Jobs where your hands are busy.</h2>
-    <p class="section-desc">Airpiece is built for people whose hands stay on the work.</p>
-    <div class="use-cases">
+    <div class="reveal">
+        <p class="section-label">Built for</p>
+        <h2>Jobs where your hands are busy.</h2>
+        <p class="section-desc">Airpiece is built for people whose hands stay on the work.</p>
+    </div>
+    <div class="use-cases reveal-stagger">
         <div class="use-case">
             <h3>Green roof surveys</h3>
             <p>Walk a roof, call out observations, identify plant species, flag drainage issues. Generate a complete site report, entirely by voice.</p>
@@ -459,10 +524,12 @@
 
 <!-- What you say -->
 <section>
-    <p class="section-label">Talk to it</p>
-    <h2>Just say it.</h2>
-    <p class="section-desc">Pure voice. Speak like you'd speak to a colleague standing right next to you.</p>
-    <div class="commands">
+    <div class="reveal">
+        <p class="section-label">Talk to it</p>
+        <h2>Just say it.</h2>
+        <p class="section-desc">Pure voice. Speak like you'd speak to a colleague standing right next to you.</p>
+    </div>
+    <div class="commands reveal-stagger">
         <div class="command">
             <div class="voice">"Log this — moss buildup on the north parapet"</div>
             <div class="response">Logged. Image captured, GPS tagged. Moss coverage approximately 40% of visible area.</div>
@@ -485,7 +552,7 @@
 <div class="divider"></div>
 
 <!-- Waitlist -->
-<div class="waitlist" id="waitlist">
+<div class="waitlist reveal" id="waitlist">
     <p class="section-label">Early access</p>
     <h2>Be first to wear it.</h2>
     <p class="section-desc">We're building the first prototypes. Leave your email and we'll let you know when it's ready to test.</p>
@@ -503,10 +570,41 @@
 </footer>
 
 <script>
-document.getElementById('waitlistForm').addEventListener('submit', function(e) {
+// Scroll reveal
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+        }
+    });
+}, { threshold: 0.15, rootMargin: '0px 0px -50px 0px' });
+
+document.querySelectorAll('.reveal, .reveal-stagger').forEach(el => observer.observe(el));
+
+// Waitlist form
+document.getElementById('waitlistForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     const email = this.querySelector('input[type="email"]').value;
-    console.log('Waitlist signup:', email);
+    const btn = this.querySelector('button');
+    btn.textContent = 'Joining...';
+    btn.disabled = true;
+
+    try {
+        // Store in localStorage as backup
+        const signups = JSON.parse(localStorage.getItem('airpiece_waitlist') || '[]');
+        signups.push({ email, timestamp: new Date().toISOString() });
+        localStorage.setItem('airpiece_waitlist', JSON.stringify(signups));
+
+        // TODO: Replace with real backend endpoint
+        // await fetch('https://your-api.com/waitlist', {
+        //     method: 'POST',
+        //     headers: { 'Content-Type': 'application/json' },
+        //     body: JSON.stringify({ email })
+        // });
+    } catch (err) {
+        console.error('Waitlist error:', err);
+    }
+
     this.style.display = 'none';
     document.querySelector('.form-note').style.display = 'none';
     document.getElementById('formSuccess').style.display = 'block';

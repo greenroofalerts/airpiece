@@ -70,7 +70,17 @@ airpiece/
 - USB-C PD battery — standard drone/power bank batteries work
 - Bone conduction — doesn't block ambient site sounds (safety critical)
 
+## Website (site/)
+- Domain: airpiece.io (GoDaddy, registered 2026-02-03)
+- Static single-page landing at `site/index.html`
+- Deploy via Cloudflare Pages (build output: `site/`)
+- Design: studio-light warm grey backdrop, Space Grotesk headings, Instrument Sans body
+- Scroll reveal animations, staggered card entrances, letter-drop hero animation
+- Waitlist form stores to localStorage (backend TBD)
+- Copy rule: NEVER use negation. Always positive framing.
+
 ## Commands
 - `python firmware/main.py` — run the main assistant loop
 - `python scripts/test_hardware.py` — verify all hardware connected
 - `python server/app.py` — start companion web interface
+- `open site/index.html` — preview landing page locally
