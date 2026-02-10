@@ -1,7 +1,6 @@
 # Core
-anthropic>=0.39.0        # Claude Vision API
-openai>=1.50.0           # Whisper API (optional, for cloud STT)
-openai-whisper>=20231117 # Local Whisper model
+anthropic>=0.39.0              # Claude Vision API
+google-cloud-speech>=2.21.0    # Google Cloud Speech-to-Text
 
 # Audio
 pyaudio>=0.2.14          # Mic capture

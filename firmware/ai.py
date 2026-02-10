@@ -91,34 +91,27 @@ Keep it professional and suitable for a client handover.""",
     return response.content[0].text
 
 
-# --- Whisper STT ---
+# --- Google Cloud Speech-to-Text ---
 
 def transcribe_audio(wav_bytes: bytes) -> str:
-    """Transcribe WAV audio to text using local Whisper model."""
+    """Transcribe WAV audio to text using Google Cloud Speech-to-Text."""
+    from google.cloud import speech
+
+    client = speech.SpeechClient()
+
+    audio = speech.RecognitionAudio(content=wav_bytes)
+    config = speech.RecognitionConfig(
+        encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,
+        sample_rate_hertz=16000,
+        language_code="en-GB",
+        enable_automatic_punctuation=True,
+    )
+
     try:
-        import whisper
-
-        model = whisper.load_model("base")  # 'tiny' for faster, 'small' for better
-        # Write to temp file (whisper expects a file path)
-        with tempfile.NamedTemporaryFile(suffix=".wav", delete=True) as tmp:
-            tmp.write(wav_bytes)
-            tmp.flush()
-            result = model.transcribe(tmp.name, language="en")
-        return result["text"].strip()
-    except ImportError:
-        log.warning("Whisper not installed, falling back to OpenAI API")
-        return _transcribe_openai(wav_bytes)
-
-
-def _transcribe_openai(wav_bytes: bytes) -> str:
-    """Fallback: transcribe using OpenAI Whisper API."""
-    from openai import OpenAI
-    from config import OPENAI_API_KEY
-
-    oai = OpenAI(api_key=OPENAI_API_KEY)
-    with tempfile.NamedTemporaryFile(suffix=".wav", delete=True) as tmp:
-        tmp.write(wav_bytes)
-        tmp.flush()
-        tmp.seek(0)
-        result = oai.audio.transcriptions.create(model="whisper-1", file=tmp)
-    return result.text.strip()
+        response = client.recognize(config=config, audio=audio)
+        if response.results:
+            return response.results[0].alternatives[0].transcript.strip()
+        return ""
+    except Exception as e:
+        log.error("Google STT error: %s", e)
+        return ""

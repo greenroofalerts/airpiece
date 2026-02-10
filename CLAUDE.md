@@ -20,7 +20,7 @@ A hard-hat-mounted AI assistant for green roof site surveys. Camera always recor
 
 ## Architecture
 ```
-[Mic] → [RPi5: VAD + wake word] → [Whisper API or local] → text
+[Mic] → [RPi5: VAD + wake word] → [Google Cloud STT] → text
 [Camera] → [RPi5: frame capture on trigger] → [Claude Vision API] → analysis
 [GPS] → [RPi5: geotag all events]
 [Response text] → [TTS: Piper local] → [Bluetooth earpiece]
@@ -29,12 +29,16 @@ All events → [SQLite log] → [Report generator]
 
 ## Tech Stack
 - **Firmware/main loop**: Python 3.11+ on Raspberry Pi OS
-- **Speech-to-text**: OpenAI Whisper (local small model or API)
+- **Speech-to-text**: Google Cloud Speech-to-Text (same as Google Meet)
 - **Vision**: Claude Vision API (claude-sonnet-4-20250514 or later)
 - **Text-to-speech**: Piper TTS (runs locally on Pi, no API needed)
 - **Wake word**: Porcupine (local, low latency)
 - **Database**: SQLite for event logging
 - **Server**: Optional companion server for heavy processing / report viewing
+
+## API Keys Required
+- `ANTHROPIC_API_KEY` — for Claude Vision
+- `GOOGLE_APPLICATION_CREDENTIALS` — path to Google Cloud service account JSON
 
 ## Project Structure
 ```
