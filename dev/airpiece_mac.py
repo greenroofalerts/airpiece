@@ -2,8 +2,6 @@
 """
 Airpiece Mac Dev Prototype
 Voice → Webcam capture → Claude Vision → TTS response
-
-Uses Deepgram for speech-to-text
 """
 
 import os
@@ -13,11 +11,11 @@ import subprocess
 import time
 import io
 import wave
+import requests
 import numpy as np
 import sounddevice as sd
 import cv2
 from anthropic import Anthropic
-from deepgram import DeepgramClient, PrerecordedOptions
 
 # Config
 SAMPLE_RATE = 16000
@@ -26,7 +24,6 @@ SILENCE_DURATION = 1.5
 MIN_SPEECH_DURATION = 0.5
 
 anthropic = Anthropic()
-deepgram = DeepgramClient(os.getenv("DEEPGRAM_API_KEY"))
 
 
 def record_until_silence():
@@ -67,7 +64,7 @@ def record_until_silence():
 
 
 def transcribe_deepgram(audio):
-    """Transcribe audio using Deepgram."""
+    """Transcribe audio using Deepgram REST API."""
     print("📝 Transcribing...")
 
     # Convert to WAV bytes
@@ -80,18 +77,17 @@ def transcribe_deepgram(audio):
 
     audio_bytes = buf.getvalue()
 
-    options = PrerecordedOptions(
-        model="nova-2",
-        language="en-GB",
-        smart_format=True,
+    response = requests.post(
+        "https://api.deepgram.com/v1/listen?model=nova-2&language=en-GB&smart_format=true",
+        headers={
+            "Authorization": f"Token {os.getenv('DEEPGRAM_API_KEY')}",
+            "Content-Type": "audio/wav"
+        },
+        data=audio_bytes
     )
 
-    response = deepgram.listen.rest.v("1").transcribe_file(
-        {"buffer": audio_bytes, "mimetype": "audio/wav"},
-        options
-    )
-
-    transcript = response.results.channels[0].alternatives[0].transcript
+    result = response.json()
+    transcript = result.get("results", {}).get("channels", [{}])[0].get("alternatives", [{}])[0].get("transcript", "")
     return transcript
 
 
@@ -152,11 +148,37 @@ def speak(text):
     subprocess.run(['say', '-r', '180', text], check=True)
 
 
+def check_voice_command(text):
+    """Check for voice control commands. Returns (command, should_process)."""
+    text_lower = text.lower().strip()
+
+    if "airpiece stop" in text_lower or "airpiece quit" in text_lower:
+        return "stop", False
+    elif "airpiece sleep" in text_lower or "airpiece pause" in text_lower:
+        return "sleep", False
+    elif "airpiece wake" in text_lower or "airpiece resume" in text_lower:
+        return "wake", False
+    elif "airpiece mute" in text_lower:
+        return "mute", False
+    elif "airpiece unmute" in text_lower:
+        return "unmute", False
+
+    return None, True
+
+
 def main():
     print("=" * 50)
     print("AIRPIECE DEV PROTOTYPE")
     print("=" * 50)
     print("Speak naturally. I see what your webcam sees.")
+    print("")
+    print("Voice commands:")
+    print("  'Airpiece sleep'  - pause listening")
+    print("  'Airpiece wake'   - resume listening")
+    print("  'Airpiece mute'   - turn off camera")
+    print("  'Airpiece unmute' - turn on camera")
+    print("  'Airpiece stop'   - quit")
+    print("")
     print("Press Ctrl+C to exit.\n")
 
     # Check API keys
@@ -177,6 +199,9 @@ def main():
     print("✓ Camera ready")
     print("✓ API keys found\n")
 
+    sleeping = False
+    camera_muted = False
+
     while True:
         try:
             audio = record_until_silence()
@@ -189,12 +214,56 @@ def main():
 
             print(f"You said: \"{text}\"")
 
-            image = capture_frame()
-            if image is None:
-                speak("I couldn't capture from the camera.")
+            # Check for voice commands
+            command, should_process = check_voice_command(text)
+
+            if command == "stop":
+                speak("Goodbye!")
+                print("\n👋 Stopped by voice command")
+                break
+            elif command == "sleep":
+                sleeping = True
+                speak("Sleeping. Say Airpiece wake to resume.")
+                print("😴 Sleeping...")
+                continue
+            elif command == "wake":
+                sleeping = False
+                speak("I'm back. How can I help?")
+                print("👁️ Awake!")
+                continue
+            elif command == "mute":
+                camera_muted = True
+                speak("Camera muted. I can hear you but I'm not looking.")
+                print("🙈 Camera muted")
+                continue
+            elif command == "unmute":
+                camera_muted = False
+                speak("Camera on. I can see again.")
+                print("👁️ Camera on")
                 continue
 
-            response = analyze(text, image)
+            # If sleeping, only respond to wake command
+            if sleeping:
+                continue
+
+            # Capture and analyze
+            if camera_muted:
+                # No image, just respond to voice
+                response = anthropic.messages.create(
+                    model="claude-sonnet-4-20250514",
+                    max_tokens=300,
+                    system="""You are Airpiece, a hands-free AI assistant for fieldwork.
+Keep responses concise (1-3 sentences) - they'll be spoken through an earpiece.
+The camera is currently muted so you cannot see anything.""",
+                    messages=[{"role": "user", "content": text}]
+                ).content[0].text
+            else:
+                image = capture_frame()
+                if image is None:
+                    speak("I couldn't capture from the camera.")
+                    continue
+                response = analyze(text, image)
+
             speak(response)
 
         except KeyboardInterrupt:
