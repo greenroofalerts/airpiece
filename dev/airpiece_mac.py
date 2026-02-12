@@ -3,17 +3,21 @@
 Airpiece Mac Dev Prototype
 Voice → Webcam capture → Claude Vision → TTS response
 
-Uses Google Cloud Speech-to-Text (same as Google Meet transcription)
+Uses Deepgram for speech-to-text
 """
 
 import os
 import sys
 import base64
+import subprocess
 import time
+import io
+import wave
 import numpy as np
 import sounddevice as sd
 import cv2
 from anthropic import Anthropic
+from deepgram import DeepgramClient, PrerecordedOptions
 
 # Config
 SAMPLE_RATE = 16000
@@ -22,6 +26,7 @@ SILENCE_DURATION = 1.5
 MIN_SPEECH_DURATION = 0.5
 
 anthropic = Anthropic()
+deepgram = DeepgramClient(os.getenv("DEEPGRAM_API_KEY"))
 
 
 def record_until_silence():
@@ -61,12 +66,8 @@ def record_until_silence():
     return audio
 
 
-def transcribe_google(audio):
-    """Transcribe audio using Google Cloud Speech-to-Text."""
-    from google.cloud import speech
-    import io
-    import wave
-
+def transcribe_deepgram(audio):
+    """Transcribe audio using Deepgram."""
     print("📝 Transcribing...")
 
     # Convert to WAV bytes
@@ -77,20 +78,21 @@ def transcribe_google(audio):
         wf.setframerate(SAMPLE_RATE)
         wf.writeframes((audio * 32767).astype(np.int16).tobytes())
 
-    client = speech.SpeechClient()
-    audio_content = speech.RecognitionAudio(content=buf.getvalue())
-    config = speech.RecognitionConfig(
-        encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,
-        sample_rate_hertz=SAMPLE_RATE,
-        language_code="en-GB",
-        enable_automatic_punctuation=True,
+    audio_bytes = buf.getvalue()
+
+    options = PrerecordedOptions(
+        model="nova-2",
+        language="en-GB",
+        smart_format=True,
     )
 
-    response = client.recognize(config=config, audio=audio_content)
+    response = deepgram.listen.rest.v("1").transcribe_file(
+        {"buffer": audio_bytes, "mimetype": "audio/wav"},
+        options
+    )
 
-    if response.results:
-        return response.results[0].alternatives[0].transcript
-    return ""
+    transcript = response.results.channels[0].alternatives[0].transcript
+    return transcript
 
 
 def capture_frame():
@@ -147,7 +149,6 @@ If asked a question about the scene, answer directly.""",
 def speak(text):
     """Speak text using macOS TTS."""
     print(f"🔊 {text}\n")
-    import subprocess
     subprocess.run(['say', '-r', '180', text], check=True)
 
 
@@ -155,14 +156,15 @@ def main():
     print("=" * 50)
     print("AIRPIECE DEV PROTOTYPE")
     print("=" * 50)
-    print("Using: Google Cloud STT + Claude Vision + macOS TTS")
     print("Speak naturally. I see what your webcam sees.")
     print("Press Ctrl+C to exit.\n")
 
-    # Check Google Cloud credentials
-    if not os.getenv("GOOGLE_APPLICATION_CREDENTIALS"):
-        print("⚠️  Set GOOGLE_APPLICATION_CREDENTIALS to your service account JSON")
-        print("   export GOOGLE_APPLICATION_CREDENTIALS=/path/to/key.json")
+    # Check API keys
+    if not os.getenv("ANTHROPIC_API_KEY"):
+        print("❌ Need ANTHROPIC_API_KEY")
+        sys.exit(1)
+    if not os.getenv("DEEPGRAM_API_KEY"):
+        print("❌ Need DEEPGRAM_API_KEY")
         sys.exit(1)
 
     # Test camera
@@ -172,13 +174,16 @@ def main():
         sys.exit(1)
     cap.release()
 
+    print("✓ Camera ready")
+    print("✓ API keys found\n")
+
     while True:
         try:
             audio = record_until_silence()
             if audio is None:
                 continue
 
-            text = transcribe_google(audio)
+            text = transcribe_deepgram(audio)
             if not text or len(text.strip()) < 2:
                 continue
 

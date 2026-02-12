@@ -20,7 +20,7 @@ A hard-hat-mounted AI assistant for green roof site surveys. Camera always recor
 
 ## Architecture
 ```
-[Mic] → [RPi5: VAD + wake word] → [Google Cloud STT] → text
+[Mic] → [RPi5: VAD + wake word] → [Deepgram STT] → text
 [Camera] → [RPi5: frame capture on trigger] → [Claude Vision API] → analysis
 [GPS] → [RPi5: geotag all events]
 [Response text] → [TTS: Piper local] → [Bluetooth earpiece]
@@ -29,7 +29,7 @@ All events → [SQLite log] → [Report generator]
 
 ## Tech Stack
 - **Firmware/main loop**: Python 3.11+ on Raspberry Pi OS
-- **Speech-to-text**: Google Cloud Speech-to-Text (same as Google Meet)
+- **Speech-to-text**: Deepgram (nova-2 model, fast and accurate)
 - **Vision**: Claude Vision API (claude-sonnet-4-20250514 or later)
 - **Text-to-speech**: Piper TTS (runs locally on Pi, no API needed)
 - **Wake word**: Porcupine (local, low latency)
@@ -38,7 +38,7 @@ All events → [SQLite log] → [Report generator]
 
 ## API Keys Required
 - `ANTHROPIC_API_KEY` — for Claude Vision
-- `GOOGLE_APPLICATION_CREDENTIALS` — path to Google Cloud service account JSON
+- `DEEPGRAM_API_KEY` — for speech-to-text
 
 ## Project Structure
 ```
@@ -84,7 +84,8 @@ airpiece/
 - Copy rule: NEVER use negation. Always positive framing.
 
 ## Commands
-- `python firmware/main.py` — run the main assistant loop
+- `python dev/airpiece_mac.py` — run Mac dev prototype (uses webcam + mic)
+- `python firmware/main.py` — run the main assistant loop on Pi
 - `python scripts/test_hardware.py` — verify all hardware connected
 - `python server/app.py` — start companion web interface
 - `open site/index.html` — preview landing page locally

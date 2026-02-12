@@ -91,27 +91,27 @@ Keep it professional and suitable for a client handover.""",
     return response.content[0].text
 
 
-# --- Google Cloud Speech-to-Text ---
+# --- Deepgram Speech-to-Text ---
 
 def transcribe_audio(wav_bytes: bytes) -> str:
-    """Transcribe WAV audio to text using Google Cloud Speech-to-Text."""
-    from google.cloud import speech
+    """Transcribe WAV audio to text using Deepgram."""
+    from deepgram import DeepgramClient, PrerecordedOptions
+    from config import DEEPGRAM_API_KEY
 
-    client = speech.SpeechClient()
+    client = DeepgramClient(DEEPGRAM_API_KEY)
 
-    audio = speech.RecognitionAudio(content=wav_bytes)
-    config = speech.RecognitionConfig(
-        encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,
-        sample_rate_hertz=16000,
-        language_code="en-GB",
-        enable_automatic_punctuation=True,
+    options = PrerecordedOptions(
+        model="nova-2",
+        language="en-GB",
+        smart_format=True,
     )
 
     try:
-        response = client.recognize(config=config, audio=audio)
-        if response.results:
-            return response.results[0].alternatives[0].transcript.strip()
-        return ""
+        response = client.listen.rest.v("1").transcribe_file(
+            {"buffer": wav_bytes, "mimetype": "audio/wav"},
+            options
+        )
+        return response.results.channels[0].alternatives[0].transcript.strip()
     except Exception as e:
-        log.error("Google STT error: %s", e)
+        log.error("Deepgram STT error: %s", e)
         return ""
